@@ -33,6 +33,45 @@ $targetArr = [
     ],
 ];
 
-dump (data_get($targetArr, 'key7.key7-3.key7-3-5', date("Y/n/j")));
+// dump (data_get($targetArr, 'key7.key7-3.key7-3-5', date("Y/n/j")));
+
+dump(
+    'hello word'
+);
 
 ?>
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <title>PHP_Learning</title>
+</head>
+<body>
+    
+</body>
+<footer>
+<a href="./NewTodo.php">
+    <button class="btn btn-outline-primary">Todo-List</button>
+</a>
+<a href="">
+    <button class="btn btn-outline-primary">Other</button>
+</a>
+<a href="">
+    <button class="btn btn-outline-primary">Other</button>
+</a>
+<a href="">
+    <button class="btn btn-outline-primary">Other</button>
+</a>
+<a href="">
+    <button class="btn btn-outline-primary">Other</button>
+</a>
+</footer>
+<style>
+footer{
+    position: absolute;
+    bottom: 0;
+}
+</style>
+</html>
