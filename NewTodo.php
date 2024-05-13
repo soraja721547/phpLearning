@@ -10,39 +10,43 @@ require_once __DIR__ . '/functions.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo_List</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" 
+        crossorigin="anonymous"
+    >
+    <script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" 
+        crossorigin="anonymous">
+    </script>
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
 
 <?php
 session_start();
+date_default_timezone_set("Asia/Taipei");
 
-$utc = (int)date("h") + 6;
-
-if ($utc > 24) {
-    $utc -= 24;
-}elseif(24 > $utc && $utc > 12){
-    $utc -= 12;
-}
+const CLEAR_SESSION = 'CAS';
 
 $users = $_SESSION['users'] ?? [];
 $logingUser = $_SESSION['logingUsername'] ?? '';
-$now = date("Y-n-j-") . $utc . date(":i:s");
+$now = date("Y-m-d-H-i-s");
 
-if(!empty($logingUser)){
+if (!empty($logingUser)){
 
-    $todoPath = base_path("/$logingUser todos");
+    $todoPath = base_path("/temp/$logingUser todos");
     $todos = file_exists($todoPath)
     ? json_decode(file_get_contents($todoPath), true)
     : [];
     
-    if(isset($_POST['addNewTodo']) && !empty(trim($_POST['addNewTodo']))) {
+    if (isset($_POST['addNewTodo']) && !empty(trim($_POST['addNewTodo']))) {
         
         // *******************clear all session**********************
-        if ($_POST['addNewTodo'] == "CAS"){
+        if ($_POST['addNewTodo'] == CLEAR_SESSION){
             session_destroy();
-        }else{
+        } else {
         // **********************************************************
             $todos[] = [
                 'id' => uniqid(),
@@ -55,12 +59,12 @@ if(!empty($logingUser)){
             ];
         }
     }
-    if(isset($_POST['clearAll'])){
+    if (isset($_POST['clearAll'])){
         $todos = [];
     }
-    if(isset($_POST['Edit'])){
-        foreach($todos as $index => $todo){
-            if($todo['id'] == $_POST['Edit']){
+    if (isset($_POST['edit'])){
+        foreach ($todos as $index => $todo){
+            if ($todo['id'] == $_POST['edit']){
                 $todo['enabled'] = !$todo['enabled'];
                 $todo['updatedAt'] = $now;
                 if(isset($_POST[$todo['id']])){
@@ -70,18 +74,18 @@ if(!empty($logingUser)){
             }
         }
     }
-    if(isset($_POST['Finish?'])){
-        foreach($todos as $index => $todo){
-            if($todo['id'] == $_POST['Finish?']){
+    if (isset($_POST['finished'])){
+        foreach ($todos as $index => $todo){
+            if ($todo['id'] == $_POST['finished']){
                 $todo['finishedStatus'] = !$todo['finishedStatus'];
                 $todo['updatedAt'] = $now;
                 $todos[$index] = $todo;
             }
         }
     }
-    if(isset($_POST['Delete'])){
+    if (isset($_POST['delete'])){
         foreach($todos as $index => $todo){
-            if($todo['id'] == $_POST['Delete']){
+            if($todo['id'] == $_POST['delete']){
                 $todo['deletedAt'] = $now;
                 unset($todos[$index]);
             }
@@ -89,51 +93,53 @@ if(!empty($logingUser)){
     }
     file_put_contents($todoPath, json_encode($todos));
 
-}else{
+} else {
     $todos = [];
 }
 
-// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
-    // ********************註冊登出入處理*****************************************************
-    if(isset($_POST['registerUsername'])){
-        $users[] = [
-            'username' => $_POST['registerUsername'],
-            'password' => $_POST['registerPassword']
-        ];
+// ********************註冊登出入處理*****************************************************
+if (isset($_POST['registerUsername'])){
+    $users[] = [
+        'username' => $_POST['registerUsername'],
+        'password' => $_POST['registerPassword']
+    ];
 
-        $_SESSION['users'] = $users;
-        echo '<script>alert(\'註冊完成\')</script>';
-    }
+    $_SESSION['users'] = $users;
+    echo '<script>alert(\'註冊完成\')</script>';
+}
 
-    if(isset($_POST['logingUsername'])){
-        foreach($users as $index => $value){
-            if($value['username'] == $_POST['logingUsername']){
-                if($value['password'] == $_POST['logingPassword']){
-                    $logingUser = $value['username'];
-    
-                    $todoPath = base_path("/$logingUser todos");
-                    $todos = file_exists($todoPath)
-                    ? json_decode(file_get_contents($todoPath), true)
-                    : [];
-    
-                    file_put_contents($todoPath, json_encode($todos));
-                    echo '<script>alert(\'登入成功\')</script>';
-                }else{
-                    echo '<script>alert(\'帳號或密碼錯誤\')</script>';
-                }
-            }
+if (isset($_POST['logingUsername'])){
+    foreach ($users as $index => $value){
+        if (
+            $value['username'] == $_POST['logingUsername'] &&
+            $value['password'] == $_POST['logingPassword']
+        ){
+            $logingUser = $value['username'];
+        
+            $todoPath = base_path("/temp/$logingUser todos");
+            $todos = file_exists($todoPath)
+            ? json_decode(file_get_contents($todoPath), true)
+            : [];
+
+            file_put_contents($todoPath, json_encode($todos));
+
+            echo '<script>alert(\'登入成功\')</script>';
+
+        } else {
+            echo '<script>alert(\'帳號或密碼錯誤\')</script>';
         }
         
-        $_SESSION['logingUsername'] = $logingUser;
     }
+    
+    $_SESSION['logingUsername'] = $logingUser;
+}
 
-    if(isset($_POST['logoutCheck'])){
-        $_SESSION['logingUsername'] = '';
-        $todos = [];
-    }
-// }
+if (isset($_POST['logoutCheck'])){
+    $_SESSION['logingUsername'] = '';
+    $todos = [];
+}
 
 ?>
 
@@ -147,14 +153,10 @@ if(!empty($logingUser)){
         height: 87vh;
         border-top: 2rem solid rgba(200, 200, 200, .5);
         outline: 1px solid rgba(200, 200, 200, 1);
-        box-shadow: 0rem 85rem 0.1rem 40rem #0d6efd;
+        box-shadow: 0rem 85rem 0.1rem 72vh #0d6efd;
         border-radius: 12px;
         margin: 2rem;
         padding: 1rem;
-    }
-
-    .helloUser{
-        
     }
 
     .registerDiv{
@@ -166,6 +168,7 @@ if(!empty($logingUser)){
             margin: auto;
         }
     }
+
     h1 {
         position: absolute;
         top: 27px;
@@ -406,7 +409,7 @@ if(!empty($logingUser)){
 
     <main class="m-auto mt-5 mb-5">
 
-        <h1 class="text-primary text-opacity-75 fw-bold">TODOoLIST</h1>
+        <h1 class="text-primary text-opacity-75 fw-bold">Todo List</h1>
 
         <section class="addSection">
         
@@ -419,7 +422,7 @@ if(!empty($logingUser)){
             <form action="" method="post" class="mt-2 mb-3">
                 <input name="clearAll" value="true" type="hidden" class="form-control">
                 <button class="btn btn-outline-primary text-nowrap" type="submit">
-                    Clear ALL
+                    Clear all
                 </button>
             </form>
         </section>
@@ -451,7 +454,7 @@ if(!empty($logingUser)){
 
                         <button 
                             <?= $todo['finishedStatus'] ? 'disabled' : '' ?> 
-                            name="Edit" 
+                            name="edit" 
                             value="<?= $todo['id'] ?>" 
                             class="btn btn-outline-primary col-2
                             <?= $todo['finishedStatus'] ? 'btn-outline-secondary' : '' ?>" 
@@ -462,7 +465,7 @@ if(!empty($logingUser)){
 
                         <button 
                             <?= $todo['enabled'] ? 'disabled' : '' ?> 
-                            name="Finish?" 
+                            name="finished" 
                             value="<?= $todo['id'] ?>" 
                             class="btn btn-outline-primary col-3
                             <?= $todo['enabled'] ? 'btn-outline-secondary' : '' ?>" 
@@ -472,7 +475,7 @@ if(!empty($logingUser)){
                         </button>
 
                         <button 
-                            name="Delete" 
+                            name="delete" 
                             value="<?= $todo['id'] ?>" 
                             class="btn btn-outline-danger col-1" 
                             type="submit"

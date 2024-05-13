@@ -1,42 +1,44 @@
 <?php 
 
-if(!function_exists('data_get')){
+if (!function_exists('data_get')){
     function data_get(
         mixed $target, 
         array|string|int|null $key,
         mixed $default = null){
     
-        if(is_null($target) || is_null($key)){
+        if (is_null($target)){
             return $target;
         }
     
-        while(1){
-            $keySplit = explode('.', (string)$key);
-            $keyShift = array_shift($keySplit);
-            $key = implode('.', (array)$keySplit);
+        $exploded = is_array($key) ? $key : explode('.', $key);
+
+        while (true){
+            $keyShift = array_shift($exploded);
     
-            if(!empty($keyShift)){
-    
-                if(!array_key_exists($keyShift, (array)$target)){
-                    return $default;
-                }else{
-                    $target = $target[$keyShift];
-                }
-            }else{
+            if (is_null($keyShift)){
                 break;
+            }
+            if (is_array($target) && array_key_exists($keyShift, $target)){
+                $target = $target[$keyShift];
+
+            } elseif (is_object($target) && property_exists($target, $keyShift)){
+                $target = $target -> {$keyShift};
+            
+            } else {
+                return $default;
             }
         }
         return $target;
     }
 }
 
-if(!function_exists('base_path')){
+if (!function_exists('base_path')){
     function base_path(string $path = ''){
         return __DIR__.DIRECTORY_SEPARATOR.ltrim($path, '/\\');
     }
 }
 
-if(!function_exists('get_request_query')){
+if (!function_exists('get_request_query')){
     function get_request_query(
         ?string $key = null,
         mixed $default = null
@@ -46,7 +48,7 @@ if(!function_exists('get_request_query')){
 }
 
 
-if(!function_exists('get_request_post')){
+if (!function_exists('get_request_post')){
     function get_request_post(
         ?string $key = null,
         mixed $default = null
@@ -59,7 +61,7 @@ if(!function_exists('get_request_post')){
     }
 }
 
-if(!function_exists('get_request_input')){
+if (!function_exists('get_request_input')){
     function get_request_input(
         ?string $key = null,
         mixed $default = null
@@ -70,7 +72,7 @@ if(!function_exists('get_request_input')){
     }
 }
 
-if(!function_exists('get_request_file')){
+if (!function_exists('get_request_file')){
     function get_request_file(
         ?string $key = null,
         mixed $default = null
@@ -79,7 +81,7 @@ if(!function_exists('get_request_file')){
     }
 }
 
-if(!function_exists('get_request_all')){
+if (!function_exists('get_request_all')){
     function get_request_all(
         ?string $key = null,
         mixed $default = null
